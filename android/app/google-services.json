@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "698095130239",
+    "project_id": "smart-college-app-ce2fb",
+    "storage_bucket": "smart-college-app-ce2fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698095130239:android:660f06b58d9a2c576f514a",
+        "android_client_info": {
+          "package_name": "com.example.campus360"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9IAXYaPgtK7JT_eK2aCgW7OGdpe3q2Lc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698095130239:android:7b52efd75352d5ba6f514a",
+        "android_client_info": {
+          "package_name": "com.smartcollegeapp.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9IAXYaPgtK7JT_eK2aCgW7OGdpe3q2Lc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

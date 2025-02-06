@@ -1,0 +1,2 @@
+/Users/muhammedr/development/projects/campus360/android/app/.cxx/RelWithDebInfo/393q2r2i/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/muhammedr/development/projects/campus360/android/app/.cxx/RelWithDebInfo/393q2r2i/armeabi-v7a/CMakeFiles/rebuild_cache.dir
