@@ -1,4 +1,6 @@
 // lib/screens/dashboard/dashboard_page.dart
+import 'package:campus360/screens/dashboard/staff_advisor_dashboard.dart';
+import 'package:campus360/screens/dashboard/student_rep_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -35,6 +37,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String role = "Student"; // default role
   String department = "";
+  String allocatedBatch = "";
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,7 @@ class _DashboardPageState extends State<DashboardPage> {
         setState(() {
           role = data['role'] ?? 'Student';
           department = data['department'] ?? '';
+          allocatedBatch = data['batch'] ?? '';
           print(data);
           print(department);
           print(role);
@@ -79,8 +83,16 @@ class _DashboardPageState extends State<DashboardPage> {
         );
         break;
       case 'Staff Advisor':
+        dashboardWidget = StaffAdvisorDashboard(
+            allocatedBatch: allocatedBatch,
+            allocatedDepartment: department,
+            allocatedClassroomId: "classroom101");
+        break;
       case 'Student Rep':
-        dashboardWidget = ClassDashboard();
+        dashboardWidget = StudentRepDashboard(
+            allocatedBatch: allocatedBatch,
+            allocatedDepartment: department,
+            allocatedClassroomId: "classroom101");
         break;
       default:
         dashboardWidget = SecurityDashboard();

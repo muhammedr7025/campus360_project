@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 class EnergyReportPage extends StatefulWidget {
   final String batch;
@@ -19,15 +18,16 @@ class EnergyReportPage extends StatefulWidget {
 }
 
 class _EnergyReportPageState extends State<EnergyReportPage> {
-  List<charts.Series<dynamic, DateTime>> _seriesList = [];
+  double energyConsumption = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _fetchEnergyData();
+    _fetchEnergyConsumption();
   }
 
-  Future<void> _fetchEnergyData() async {
+  Future<void> _fetchEnergyConsumption() async {
+    // For simplicity, we fetch all energy logs under the classroom and sum the energy values.
     DatabaseReference energyRef = FirebaseDatabase.instance
         .ref()
         .child('energyLogs')
@@ -35,28 +35,18 @@ class _EnergyReportPageState extends State<EnergyReportPage> {
         .child(widget.department)
         .child(widget.classroomId);
 
-    final snapshot = await energyRef.get();
-    List<EnergyData> data = [];
-    if (snapshot.exists) {
-      Map<dynamic, dynamic> logs = snapshot.value as Map;
-      logs.forEach((key, value) {
-        data.add(EnergyData(
-          DateTime.fromMillisecondsSinceEpoch(value['timestamp']),
-          value['energy']?.toDouble() ?? 0.0,
-        ));
+    DataSnapshot snapshot = await energyRef.get();
+    double sum = 0.0;
+    if (snapshot.exists && snapshot.value != null) {
+      final data = snapshot.value as Map;
+      data.forEach((key, value) {
+        if (value is Map && value['energy'] != null) {
+          sum += (value['energy'] as num).toDouble();
+        }
       });
     }
-
     setState(() {
-      _seriesList = [
-        charts.Series<EnergyData, DateTime>(
-          id: 'Energy',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (EnergyData log, _) => log.time,
-          measureFn: (EnergyData log, _) => log.energy,
-          data: data,
-        )
-      ];
+      energyConsumption = sum;
     });
   }
 
@@ -64,23 +54,14 @@ class _EnergyReportPageState extends State<EnergyReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Energy Consumption Report"),
+        title: const Text("Energy Consumption"),
       ),
-      body: _seriesList.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: charts.TimeSeriesChart(
-                _seriesList,
-                animate: true,
-              ),
-            ),
+      body: Center(
+        child: Text(
+          "Total Energy Consumption: ${energyConsumption.toStringAsFixed(2)} kWh",
+          style: const TextStyle(fontSize: 18),
+        ),
+      ),
     );
   }
-}
-
-class EnergyData {
-  final DateTime time;
-  final double energy;
-  EnergyData(this.time, this.energy);
 }

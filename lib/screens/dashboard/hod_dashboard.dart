@@ -1,5 +1,5 @@
+import 'package:campus360/screens/attendance/admin_attendance_grouped_page.dart';
 import 'package:flutter/material.dart';
-import 'hod_attendance_page.dart';
 import 'department_classroom_list_page.dart';
 import 'department_energy_report_page.dart';
 
@@ -29,9 +29,7 @@ class HODDashboard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          HODAttendancePage(department: department),
-                    ),
+                        builder: (context) => AdminAttendanceGroupedPage()),
                   );
                 },
               ),

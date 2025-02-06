@@ -1,50 +1,48 @@
 // lib/sample_data.dart
-import 'dart:math';
 import 'package:firebase_database/firebase_database.dart';
-import 'services/database_service.dart';
 
-final DatabaseService _dbService = DatabaseService();
+Future<void> seedAttendanceDataForIT2021() async {
+  // Build a reference to the attendance node for classroom101 in the 2021 IT batch.
+  DatabaseReference attendanceRef = FirebaseDatabase.instance
+      .ref()
+      .child('classrooms')
+      .child('2022')
+      .child('IT')
+      .child('classroom101')
+      .child('attendance');
 
-/// Seeds energy consumption data for February 2025.
-/// For each department in [departments] and for each batch in [batches],
-/// it creates energy logs for the classroom 'classroom101' for every day in February 2025.
-Future<void> seedEnergyConsumptionForFebruary2025() async {
-  // Define the departments and batches.
-  final List<String> departments = ['IT', 'CS', 'MECH', 'EC', 'EEE'];
-  final List<String> batches = ['2021', '2022'];
-  const String classroomId = 'classroom101';
+  // Define two sample attendance records for the same day.
+  // Record 1: Taken by Ms. Smith at 8:00 AM on 2021-10-10.
+  DateTime record1Time = DateTime.parse("2025-02-06 08:00:00");
+  Map<String, dynamic> attendanceRecord1 = {
+    "date": "2021-10-10",
+    "teacher": "Ms. Smith",
+    "timestamp": record1Time.millisecondsSinceEpoch,
+    "present": [
+      "AOLwqtBtd1OtjdyToMMaULiJWR82",
+      "17gcvAb1WSOe4OpCQLxT0uutPy23"
+    ], // Sample UIDs for present students.
+    "absent": [
+      "s9Qt1cEeFcdmJSq8Udp2d8c1Nzi2"
+    ] // Sample UIDs for absent students.
+  };
 
-  final Random random = Random();
+  // Record 2: Taken by Mr. Jones at 1:00 PM on 2021-10-10.
+  DateTime record2Time = DateTime.parse("2025-02-06 13:00:00");
+  Map<String, dynamic> attendanceRecord2 = {
+    "date": "2021-10-10",
+    "teacher": "Mr. Jones",
+    "timestamp": record2Time.millisecondsSinceEpoch,
+    "present": ["17gcvAb1WSOe4OpCQLxT0uutPy23"], // Different sample UIDs.
+    "absent": ["AOLwqtBtd1OtjdyToMMaULiJWR82", "s9Qt1cEeFcdmJSq8Udp2d8c1Nzi2"]
+  };
 
-  // Loop over each batch and department.
-  for (final batch in batches) {
-    for (final dept in departments) {
-      // Build the reference to the energyLogs node for this classroom.
-      DatabaseReference energyRef = FirebaseDatabase.instance
-          .ref()
-          .child('energyLogs')
-          .child(batch)
-          .child(dept)
-          .child(classroomId);
-
-      // Loop through each day in February 2025.
-      for (int day = 1; day <= 28; day++) {
-        // Create a log at noon for each day.
-        DateTime logTime = DateTime(2025, 2, day, 12, 0, 0);
-        int timestamp = logTime.millisecondsSinceEpoch;
-        // Generate a random energy consumption value between 10 and 20 kWh.
-        double energy = 10 + random.nextDouble() * 10;
-
-        Map<String, dynamic> energyData = {
-          'timestamp': timestamp,
-          'energy': energy,
-        };
-
-        // Push this energy log to the RTDB.
-        await energyRef.push().set(energyData);
-      }
-      print(
-          'Seeded energy logs for Batch: $batch, Department: $dept, Classroom: $classroomId');
-    }
+  try {
+    // Save the attendance records under distinct keys.
+    await attendanceRef.child("record1").set(attendanceRecord1);
+    await attendanceRef.child("record2").set(attendanceRecord2);
+    print('Attendance records seeded for 2021 IT classroom101 on 2021-10-10.');
+  } catch (e) {
+    print('Error seeding attendance records: $e');
   }
 }

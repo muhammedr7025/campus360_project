@@ -1,15 +1,15 @@
 // lib/screens/debug/debug_creation_page.dart
 import 'package:flutter/material.dart';
-import '../../sample_data.dart'; // Ensure this imports the seed functions
+import '../../sample_data.dart';
 
 class DebugCreationPage extends StatelessWidget {
   const DebugCreationPage({Key? key}) : super(key: key);
 
-  Future<void> _seedEnergyConsumption(BuildContext context) async {
-    await seedEnergyConsumptionForFebruary2025();
+  Future<void> _seedAttendance(BuildContext context) async {
+    await seedAttendanceDataForIT2021();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-          content: Text('Energy consumption logs seeded for February 2025')),
+          content: Text('Attendance records seeded for 2021 IT batch')),
     );
   }
 
@@ -23,8 +23,8 @@ class DebugCreationPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
-              onPressed: () => _seedEnergyConsumption(context),
-              child: const Text('Seed Energy Consumption (Feb 2025)'),
+              onPressed: () => _seedAttendance(context),
+              child: const Text('Seed Attendance for 2021 IT'),
             ),
             // Other debug buttons...
           ],
