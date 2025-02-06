@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../../services/auth_service.dart';
 import '../device_control/device_control_page.dart';
 
 class SecurityDashboard extends StatefulWidget {
-  const SecurityDashboard({Key? key}) : super(key: key);
+  SecurityDashboard({Key? key}) : super(key: key);
 
   @override
   _SecurityDashboardState createState() => _SecurityDashboardState();
@@ -12,12 +13,22 @@ class SecurityDashboard extends StatefulWidget {
 class _SecurityDashboardState extends State<SecurityDashboard> {
   final DatabaseReference _classroomsRef =
       FirebaseDatabase.instance.ref().child('classrooms');
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Security Dashboard"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              await _authService.signOut();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          )
+        ],
       ),
       body: StreamBuilder<DatabaseEvent>(
         stream: _classroomsRef.onValue,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import '../attendance/attendance_page.dart';
 import '../device_control/device_control_page.dart';
 import '../../screens/energy_report/energy_report_page.dart'; // Ensure this page exists
@@ -8,18 +9,28 @@ class StaffAdvisorDashboard extends StatelessWidget {
   final String allocatedDepartment;
   final String allocatedClassroomId;
 
-  const StaffAdvisorDashboard({
+  StaffAdvisorDashboard({
     Key? key,
     required this.allocatedBatch,
     required this.allocatedDepartment,
     required this.allocatedClassroomId,
   }) : super(key: key);
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Staff Advisor Dashboard"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              await _authService.signOut();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

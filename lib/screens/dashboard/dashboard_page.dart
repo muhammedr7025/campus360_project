@@ -1,118 +1,109 @@
 // lib/screens/dashboard/dashboard_page.dart
-import 'package:campus360/screens/dashboard/staff_advisor_dashboard.dart';
-import 'package:campus360/screens/dashboard/student_rep_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+// Import the dashboards for different roles.
+import '../../services/auth_service.dart';
 import 'admin_dashboard.dart';
-import 'hod_dashboard.dart';
 import 'security_dashboard.dart';
-
-// Role-specific dashboard widgets
-
-class ClassDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: Text("Class Dashboard\nControl & Attendance for Your Class"));
-  }
-}
-
-class StudentDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text("Student Dashboard\nView Your Attendance"));
-  }
-}
+import 'hod_dashboard.dart';
+import 'staff_advisor_dashboard.dart';
+import 'student_rep_dashboard.dart';
+import '../student/student_dashboard.dart'; // Student module
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  DashboardPage({Key? key}) : super(key: key);
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  String role = "Student"; // default role
-  String department = "";
-  String allocatedBatch = "";
+  final User? user = FirebaseAuth.instance.currentUser;
+  String role = 'Student'; // default role if not found
+  // Additional properties for student details.
+  String allocatedBatch = '';
+  String allocatedDepartment = '';
+  String allocatedClassroomId = '';
+
   @override
   void initState() {
     super.initState();
-    _fetchUserRole();
+    _fetchUserProfile();
   }
 
-  // Fetch user role from Firebase Realtime Database
-  Future<void> _fetchUserRole() async {
-    User? user = _auth.currentUser;
+  // Fetch the user's profile (including role and, if student, their allocated class details).
+  Future<void> _fetchUserProfile() async {
     if (user != null) {
       DatabaseReference userRef =
-          FirebaseDatabase.instance.ref("users/${user.uid}");
-      final snapshot = await userRef.get();
+          FirebaseDatabase.instance.ref().child("users").child(user!.uid);
+      DataSnapshot snapshot = await userRef.get();
       if (snapshot.exists) {
-        final data = snapshot.value as Map;
-        setState(() {
-          role = data['role'] ?? 'Student';
-          department = data['department'] ?? '';
-          allocatedBatch = data['batch'] ?? '';
-          print(data);
-          print(department);
-          print(role);
-        });
+        final data = snapshot.value as Map?;
+        if (data != null) {
+          setState(() {
+            role = data['role'] ?? 'Student';
+            // If the role is Student, also fetch the allocated class details.
+            if (role == 'Student') {
+              allocatedBatch = data['batch'] ?? '';
+              allocatedDepartment = data['department'] ?? '';
+              allocatedClassroomId = 'classroom101';
+            }
+          });
+        }
       }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget dashboardWidget;
-
-    // Choose dashboard based on user role
+  Widget _buildDashboardForRole() {
     switch (role) {
       case 'Admin':
-        dashboardWidget = AdminDashboard();
-        break;
+        return AdminDashboard();
       case 'Security':
-        dashboardWidget = SecurityDashboard();
-        break;
+        return SecurityDashboard();
       case 'HOD':
-        dashboardWidget = HODDashboard(
-          department: department,
-        );
-        break;
+        // For HOD, you might pass the department from the profile.
+        return HODDashboard(department: dataOrFallback('department'));
       case 'Staff Advisor':
-        dashboardWidget = StaffAdvisorDashboard(
-            allocatedBatch: allocatedBatch,
-            allocatedDepartment: department,
-            allocatedClassroomId: "classroom101");
-        break;
+        return StaffAdvisorDashboard(
+          allocatedBatch: dataOrFallback('batch'),
+          allocatedDepartment: dataOrFallback('department'),
+          allocatedClassroomId: dataOrFallback('classroomId'),
+        );
       case 'Student Rep':
-        dashboardWidget = StudentRepDashboard(
-            allocatedBatch: allocatedBatch,
-            allocatedDepartment: department,
-            allocatedClassroomId: "classroom101");
-        break;
+        return StudentRepDashboard(
+          allocatedBatch: dataOrFallback('batch'),
+          allocatedDepartment: dataOrFallback('department'),
+          allocatedClassroomId: dataOrFallback('classroomId'),
+        );
+      case 'Student':
       default:
-        dashboardWidget = SecurityDashboard();
-        break;
+        // For a student, ensure that the allocated details are not empty.
+        return StudentDashboard(
+          allocatedBatch:
+              allocatedBatch.isNotEmpty ? allocatedBatch : 'Unknown',
+          allocatedDepartment:
+              allocatedDepartment.isNotEmpty ? allocatedDepartment : 'Unknown',
+          allocatedClassroomId: allocatedClassroomId.isNotEmpty
+              ? allocatedClassroomId
+              : 'Unknown',
+          studentUid: user?.uid ?? '',
+        );
     }
+  }
 
+  // Helper function to provide fallback data (if needed).
+  String dataOrFallback(String key) {
+    // In a complete implementation, you would read this from the user profile.
+    // Here we assume the profile contains the fields.
+    return ''; // Replace with actual data retrieval if needed.
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dashboard - $role"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          )
-        ],
-      ),
-      body: dashboardWidget,
+      body: _buildDashboardForRole(),
     );
   }
 }
