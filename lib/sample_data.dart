@@ -1,73 +1,48 @@
 // lib/sample_data.dart
-import 'package:firebase_database/firebase_database.dart';
 import 'services/database_service.dart';
 
 final DatabaseService _dbService = DatabaseService();
 
-/// Creates a sample admin user with profile information.
-Future<void> createSampleAdmin() async {
-  final Map<String, dynamic> adminData = {
-    'name': 'Admin User',
-    'email': 'admin@gmail.com',
-    'role': 'Admin',
-    'batch': '2021',
-    'department': 'IT',
-    'profilePhotoUrl': '',
-  };
+/// Creates a sample structure where for each department in [departments],
+/// two batches (from [batches]) are created, and in each batch one classroom is added.
+/// Adjust the lists as needed.
+Future<void> createSampleClassroomsForDepartments() async {
+  // Define the departments you need (e.g., IT, CS, MECH, EC, EEE).
+  final List<String> departments = ['IT', 'CS', 'MECH', 'EC', 'EEE'];
 
-  // NOTE:
-  // For a real admin user, you need to use the UID provided by FirebaseAuth.
-  // For debugging, we use a hard-coded UID.
-  const String uid = 'gCvOWbCuXxaoD93eCM3VWKZztqm2';
-  try {
-    await _dbService.createOrUpdateUser(uid, adminData);
-    print('Sample admin created successfully!');
-  } catch (e) {
-    print('Error creating sample admin: $e');
-  }
-}
+  // Define the two batches to be created for each department.
+  final List<String> batches = ['2021', '2022'];
 
-/// Creates a sample regular user.
-Future<void> createSampleUser() async {
-  final Map<String, dynamic> userData = {
-    'name': 'Sample Student',
-    'email': 'student@college.com',
-    'role': 'Student',
-    'batch': '2021',
-    'department': 'CS',
-    'profilePhotoUrl': '',
-  };
+  // Define a constant classroom id for simplicity.
+  final String classroomId = 'classroom101';
 
-  // Generate a UID for the sample user.
-  String uid = DateTime.now().millisecondsSinceEpoch.toString();
-  try {
-    await _dbService.createOrUpdateUser(uid, userData);
-    print('Sample user created successfully!');
-  } catch (e) {
-    print('Error creating sample user: $e');
-  }
-}
-
-/// Creates a sample classroom.
-Future<void> createSampleClassroom() async {
+  // Define the classroom data structure.
   final Map<String, dynamic> classroomData = {
     'devices': {
       'light': false,
       'fan': false,
+      'autoMode': false,
       'sensors': {
         'motion': false,
         'temperature': 0,
         'moisture': 0,
         'light': 0,
-      },
+      }
     },
-    'attendance': {},
+    'attendance': {}
   };
 
-  try {
-    await _dbService.addClassroom('2021', 'IT', 'classroom101', classroomData);
-    print('Sample classroom created successfully!');
-  } catch (e) {
-    print('Error creating sample classroom: $e');
+  // Iterate over each department and batch, creating one classroom per combination.
+  for (final dept in departments) {
+    for (final batch in batches) {
+      try {
+        await _dbService.addClassroom(batch, dept, classroomId, classroomData);
+        print(
+            'Created classroom $classroomId for batch $batch in department $dept');
+      } catch (e) {
+        print(
+            'Error creating classroom for batch $batch in department $dept: $e');
+      }
+    }
   }
 }

@@ -5,25 +5,11 @@ import '../../sample_data.dart';
 class DebugCreationPage extends StatelessWidget {
   const DebugCreationPage({Key? key}) : super(key: key);
 
-  /// Calls the sample admin creation function.
-  Future<void> _createAdmin(BuildContext context) async {
-    await createSampleAdmin();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Sample Admin Created')));
-  }
-
-  /// Calls the sample user creation function.
-  Future<void> _createUser(BuildContext context) async {
-    await createSampleUser();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Sample User Created')));
-  }
-
-  /// Calls the sample classroom creation function.
-  Future<void> _createClassroom(BuildContext context) async {
-    await createSampleClassroom();
+  Future<void> _createClassrooms(BuildContext context) async {
+    await createSampleClassroomsForDepartments();
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sample Classroom Created')));
+      const SnackBar(content: Text('Sample classrooms created')),
+    );
   }
 
   @override
@@ -36,27 +22,10 @@ class DebugCreationPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
-              onPressed: () => _createAdmin(context),
-              child: const Text('Create Sample Admin'),
+              onPressed: () => _createClassrooms(context),
+              child: const Text('Create Classrooms for Departments'),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _createUser(context),
-              child: const Text('Create Sample User'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _createClassroom(context),
-              child: const Text('Create Sample Classroom'),
-            ),
-            const SizedBox(height: 16),
-            // Optionally, add a button to navigate to user management.
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/adminUserManagement');
-              },
-              child: const Text('Go to User Management'),
-            ),
+            // Other debug buttons…
           ],
         ),
       ),
