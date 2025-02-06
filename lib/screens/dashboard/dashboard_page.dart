@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 // Import the dashboards for different roles.
-import '../../services/auth_service.dart';
 import 'admin_dashboard.dart';
 import 'security_dashboard.dart';
 import 'hod_dashboard.dart';
