@@ -4,22 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'admin_dashboard.dart';
+import 'hod_dashboard.dart';
+import 'security_dashboard.dart';
 
 // Role-specific dashboard widgets
-
-class SecurityDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text("Security Dashboard\nControl All Devices"));
-  }
-}
-
-class HODDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text("HOD Dashboard\nAttendance & Energy Data"));
-  }
-}
 
 class ClassDashboard extends StatelessWidget {
   @override
@@ -46,7 +34,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String role = "Student"; // default role
-
+  String department = "";
   @override
   void initState() {
     super.initState();
@@ -64,6 +52,9 @@ class _DashboardPageState extends State<DashboardPage> {
         final data = snapshot.value as Map;
         setState(() {
           role = data['role'] ?? 'Student';
+          department = data['department'] ?? '';
+          print(data);
+          print(department);
           print(role);
         });
       }
@@ -83,14 +74,16 @@ class _DashboardPageState extends State<DashboardPage> {
         dashboardWidget = SecurityDashboard();
         break;
       case 'HOD':
-        dashboardWidget = HODDashboard();
+        dashboardWidget = HODDashboard(
+          department: department,
+        );
         break;
       case 'Staff Advisor':
       case 'Student Rep':
         dashboardWidget = ClassDashboard();
         break;
       default:
-        dashboardWidget = StudentDashboard();
+        dashboardWidget = SecurityDashboard();
         break;
     }
 

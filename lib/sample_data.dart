@@ -1,48 +1,50 @@
 // lib/sample_data.dart
+import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
 import 'services/database_service.dart';
 
 final DatabaseService _dbService = DatabaseService();
 
-/// Creates a sample structure where for each department in [departments],
-/// two batches (from [batches]) are created, and in each batch one classroom is added.
-/// Adjust the lists as needed.
-Future<void> createSampleClassroomsForDepartments() async {
-  // Define the departments you need (e.g., IT, CS, MECH, EC, EEE).
+/// Seeds energy consumption data for February 2025.
+/// For each department in [departments] and for each batch in [batches],
+/// it creates energy logs for the classroom 'classroom101' for every day in February 2025.
+Future<void> seedEnergyConsumptionForFebruary2025() async {
+  // Define the departments and batches.
   final List<String> departments = ['IT', 'CS', 'MECH', 'EC', 'EEE'];
-
-  // Define the two batches to be created for each department.
   final List<String> batches = ['2021', '2022'];
+  const String classroomId = 'classroom101';
 
-  // Define a constant classroom id for simplicity.
-  final String classroomId = 'classroom101';
+  final Random random = Random();
 
-  // Define the classroom data structure.
-  final Map<String, dynamic> classroomData = {
-    'devices': {
-      'light': false,
-      'fan': false,
-      'autoMode': false,
-      'sensors': {
-        'motion': false,
-        'temperature': 0,
-        'moisture': 0,
-        'light': 0,
+  // Loop over each batch and department.
+  for (final batch in batches) {
+    for (final dept in departments) {
+      // Build the reference to the energyLogs node for this classroom.
+      DatabaseReference energyRef = FirebaseDatabase.instance
+          .ref()
+          .child('energyLogs')
+          .child(batch)
+          .child(dept)
+          .child(classroomId);
+
+      // Loop through each day in February 2025.
+      for (int day = 1; day <= 28; day++) {
+        // Create a log at noon for each day.
+        DateTime logTime = DateTime(2025, 2, day, 12, 0, 0);
+        int timestamp = logTime.millisecondsSinceEpoch;
+        // Generate a random energy consumption value between 10 and 20 kWh.
+        double energy = 10 + random.nextDouble() * 10;
+
+        Map<String, dynamic> energyData = {
+          'timestamp': timestamp,
+          'energy': energy,
+        };
+
+        // Push this energy log to the RTDB.
+        await energyRef.push().set(energyData);
       }
-    },
-    'attendance': {}
-  };
-
-  // Iterate over each department and batch, creating one classroom per combination.
-  for (final dept in departments) {
-    for (final batch in batches) {
-      try {
-        await _dbService.addClassroom(batch, dept, classroomId, classroomData);
-        print(
-            'Created classroom $classroomId for batch $batch in department $dept');
-      } catch (e) {
-        print(
-            'Error creating classroom for batch $batch in department $dept: $e');
-      }
+      print(
+          'Seeded energy logs for Batch: $batch, Department: $dept, Classroom: $classroomId');
     }
   }
 }

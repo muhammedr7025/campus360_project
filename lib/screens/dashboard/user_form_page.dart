@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/database_service.dart';
 import '../../services/storage_service.dart';
-import '../../services/auth_management_service.dart'; // Import the auth management service
+import '../../services/auth_management_service.dart'; // Import auth management service
 
 class UserFormPage extends StatefulWidget {
   // If userData is null, then we're creating a new user.
@@ -85,18 +85,25 @@ class _UserFormPageState extends State<UserFormPage> {
     }
   }
 
-  /// Save the user data (and upload the image if one is selected).
-  /// If this is a new user, also create the corresponding auth account.
+  /// Save the user data.
+  /// For a new user, create the auth account first to get its UID, then use that UID for the RTDB.
   void _saveUser() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Generate a UID if this is a new user; otherwise, use the provided UID.
       String uid;
       bool isNewUser =
           widget.userData == null || widget.userData!['uid'] == null;
       if (isNewUser) {
-        uid = DateTime.now().millisecondsSinceEpoch.toString();
+        // Create auth account first and get the UID.
+        try {
+          uid = await createAuthUser(email);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to create auth user: $e')),
+          );
+          return;
+        }
       } else {
         uid = widget.userData!['uid'];
       }
@@ -118,12 +125,6 @@ class _UserFormPageState extends State<UserFormPage> {
 
       try {
         await _dbService.createOrUpdateUser(uid, userData);
-
-        // For new users, create the corresponding auth account.
-        if (isNewUser) {
-          await createAuthUser(email);
-        }
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User saved successfully')),
         );

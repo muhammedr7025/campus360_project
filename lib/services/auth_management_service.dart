@@ -3,8 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Creates an auth user for the given [email] with the default password "12345678"
-/// using a secondary Firebase app instance.
-Future<void> createAuthUser(String email) async {
+/// using a secondary Firebase app instance, and returns the newly created UID.
+Future<String> createAuthUser(String email) async {
   FirebaseApp secondaryApp;
   try {
     secondaryApp = Firebase.app('Secondary');
@@ -15,10 +15,13 @@ Future<void> createAuthUser(String email) async {
     );
   }
   try {
-    await FirebaseAuth.instanceFor(app: secondaryApp)
-        .createUserWithEmailAndPassword(email: email, password: "12345678");
+    UserCredential userCredential =
+        await FirebaseAuth.instanceFor(app: secondaryApp)
+            .createUserWithEmailAndPassword(email: email, password: "12345678");
+    String newUid = userCredential.user!.uid;
     await FirebaseAuth.instanceFor(app: secondaryApp).signOut();
-    print('Auth user for $email created successfully.');
+    print('Auth user for $email created successfully. UID: $newUid');
+    return newUid;
   } catch (e) {
     print('Error creating auth user for $email: $e');
     throw e;
@@ -26,7 +29,7 @@ Future<void> createAuthUser(String email) async {
 }
 
 /// Deletes the auth user for the given [email] using a secondary Firebase app instance.
-/// It signs in with the default password "12345678" and then calls delete().
+/// It signs in with the default password "12345678" and then deletes the account.
 Future<void> deleteAuthUser(String email) async {
   FirebaseApp secondaryApp;
   try {
