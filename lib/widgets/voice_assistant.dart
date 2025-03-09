@@ -61,22 +61,26 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
     // Check for various phrases.
     if (cmd.contains("light on") ||
         cmd.contains("turn light on") ||
-        cmd.contains("switch light on")) {
+        cmd.contains("switch light on") ||
+        cmd.contains("on light")) {
       print("Command matched: Light ON");
       widget.onTurnLightOn();
     } else if (cmd.contains("light off") ||
         cmd.contains("turn light off") ||
-        cmd.contains("switch light off")) {
+        cmd.contains("switch light off") ||
+        cmd.contains("off light")) {
       print("Command matched: Light OFF");
       widget.onTurnLightOff();
     } else if (cmd.contains("fan on") ||
         cmd.contains("turn fan on") ||
-        cmd.contains("switch fan on")) {
+        cmd.contains("switch fan on") ||
+        cmd.contains("on fan")) {
       print("Command matched: Fan ON");
       widget.onTurnFanOn();
     } else if (cmd.contains("fan off") ||
         cmd.contains("turn fan off") ||
-        cmd.contains("switch fan off")) {
+        cmd.contains("switch fan off") ||
+        cmd.contains("off fan")) {
       print("Command matched: Fan OFF");
       widget.onTurnFanOff();
     } else {
