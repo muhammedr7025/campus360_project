@@ -1,10 +1,10 @@
-// lib/screens/device_control/device_control_page.dart
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../widgets/voice_assistant.dart';
 
 class DeviceControlPage extends StatefulWidget {
   final String batch;
@@ -129,6 +129,16 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
     if (!autoMode) {
       _deviceRef.update({'fan': !fanState});
     }
+  }
+
+  // Set light state explicitly (used by voice commands).
+  void _setLightState(bool state) {
+    _deviceRef.update({'light': state});
+  }
+
+  // Set fan state explicitly (used by voice commands).
+  void _setFanState(bool state) {
+    _deviceRef.update({'fan': state});
   }
 
   // Download energy report: query energy logs for the current month, generate CSV, and save to file.
@@ -270,6 +280,32 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
                 icon: const Icon(Icons.download),
                 label: const Text("Download Energy Report"),
               ),
+            ),
+            const SizedBox(height: 30),
+            // Voice Assistant Section
+            const Divider(height: 40),
+            Text("Voice Assistant",
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 10),
+            // Integrate the VoiceAssistant widget here.
+            // Inside DeviceControlPage's build method, add:
+            VoiceAssistant(
+              onTurnLightOn: () {
+                print("Voice command: Turning light ON");
+                _setLightState(true);
+              },
+              onTurnLightOff: () {
+                print("Voice command: Turning light OFF");
+                _setLightState(false);
+              },
+              onTurnFanOn: () {
+                print("Voice command: Turning fan ON");
+                _setFanState(true);
+              },
+              onTurnFanOff: () {
+                print("Voice command: Turning fan OFF");
+                _setFanState(false);
+              },
             ),
           ],
         ),

@@ -37,6 +37,7 @@ class HODDashboard extends StatelessWidget {
                     const Text("See attendance records for your department"),
                 trailing: const Icon(Icons.arrow_forward),
                 onTap: () {
+                  print(department);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
